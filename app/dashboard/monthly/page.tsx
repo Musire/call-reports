@@ -1,51 +1,77 @@
-// app/(dashboard)/monthly/page.tsx
 'use client';
+
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from "@/components/ui/table";
 import { useReport } from "@/context/ReportContext";
+import { RefreshButton } from "@/domains/dashboard/components";
+import { useReportData } from "@/hooks";
+import { formatCurrency } from "@/lib/formatUtils";
 import dayjs from "dayjs";
-import { useState } from "react";
 
 export default function MonthlyPage() {
-  const { data } = useReport();
-  const [rates, setRates] = useState({ usdMxn: 17.10, minRate: 0.15 });
+  const { cleaned, usdMxnRate } = useReport();
+  
+  const { groupedData, totals } = useReportData(cleaned, usdMxnRate);
 
   return (
     <div className="space-y-4">
-      <div className="flex gap-4 p-4 border rounded-lg bg-slate-50">
-        <label className="text-sm font-medium">USD-MXN: 
-          <input type="number" value={rates.usdMxn} onChange={e => setRates({...rates, usdMxn: +e.target.value})} className="ml-2 border rounded p-1 w-20" />
-        </label>
-        <label className="text-sm font-medium">Rate per Min: 
-          <input type="number" value={rates.minRate} onChange={e => setRates({...rates, minRate: +e.target.value})} className="ml-2 border rounded p-1 w-20" />
-        </label>
+      {/* 🔵 Totals Header (no labels) */}
+      <div className="border-b pb-2 px-2 flex justify-end space-x-6 text-lg font-semibold tracking-tight">
+        <span>{totals.count} calls</span>
+        <span>{totals.minutes.toFixed(1)} mins</span>
+        <span>{formatCurrency(totals.usd)}</span>
       </div>
 
-      <table className="w-full border-collapse">
-        <thead>
-          <tr className="bg-muted text-left">
-            <th className="p-2 border">Date</th>
-            <th className="p-2 border">Weekday</th>
-            <th className="p-2 border">Calls</th>
-            <th className="p-2 border">Minutes</th>
-            <th className="p-2 border">Total USD</th>
-            <th className="p-2 border">Total MXN</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.map((row, i) => {
-            const usd = row.minutes * rates.minRate;
-            return (
-              <tr key={i} className="hover:bg-accent/50">
-                <td className="p-2 border">{row.date}</td>
-                <td className="p-2 border">{dayjs(row.date).format('dddd')}</td>
-                <td className="p-2 border">{row.calls}</td>
-                <td className="p-2 border">{row.minutes}</td>
-                <td className="p-2 border">${usd.toFixed(2)}</td>
-                <td className="p-2 border">${(usd * rates.usdMxn).toFixed(2)}</td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+      {/* 🔵 Table */}
+      <div className="surface-1 rounded-md border h-[65vh] overflow-y-auto relative">
+        <Table>
+          <TableHeader>
+            <TableRow className="hover:bg-transparent">
+              <TableHead className="sticky top-0 bg-surface-1 z-20">Date</TableHead>
+              <TableHead className="sticky top-0 bg-surface-1 z-20">Day</TableHead>
+              <TableHead className="sticky top-0 bg-surface-1 z-20 text-center">#</TableHead>
+              <TableHead className="sticky top-0 bg-surface-1 z-20 text-right">Min</TableHead>
+              <TableHead className="sticky top-0 bg-surface-1 z-20 text-right">USD</TableHead>
+              <TableHead className="sticky top-0 bg-surface-1 z-20 text-right">MXN</TableHead>
+            </TableRow>
+          </TableHeader>
+
+          <TableBody>
+            {groupedData.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={6} className="h-24 text-center">
+                  No records found.
+                </TableCell>
+              </TableRow>
+            ) : (
+              groupedData.map((row) => (
+                <TableRow key={row.date}>
+                  <TableCell className="font-medium">{row.date}</TableCell>
+                  <TableCell>{dayjs(row.date).format('dddd')}</TableCell>
+                  <TableCell className="text-center">{row.count}</TableCell>
+                  <TableCell className="text-right">{row.minutes.toFixed(1)}</TableCell>
+                  <TableCell className="text-right">
+                    {formatCurrency(row.usd)}
+                  </TableCell>
+                  <TableCell className="text-right font-medium">
+                    {(row.usd * usdMxnRate).toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2
+                    })}
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
+      <RefreshButton />
     </div>
   );
 }

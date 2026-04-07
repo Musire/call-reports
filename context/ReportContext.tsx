@@ -1,9 +1,10 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import * as Papa from "papaparse";
-import dayjs from 'dayjs';
 import { useJwt } from "@/hooks";
+import { CallData, transformRawData } from '@/lib/dataUtils';
+import dayjs from 'dayjs';
+import * as Papa from "papaparse";
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 
 export type TimeRange = 'today' | 'mtd' | 'last7days';
 
@@ -12,19 +13,38 @@ interface ReportContextType {
   loading: boolean;
   refreshData: (range?: TimeRange) => Promise<void>;
   clearData: () => void;
+  cleaned: CallData[];
+  // New rates added to context
+  minRate: number;
+  usdMxnRate: number;
 }
 
 const ReportContext = createContext<ReportContextType | undefined>(undefined);
 
 const CACHE_KEY = 'report_cache_data';
+const MIN_RATE_KEY = 'min_usd_rate';
+const USD_MXN_KEY = 'usd_mxn_rate';
 
 export function ReportProvider({ children }: { children: React.ReactNode }) {
   const { jwt } = useJwt();
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
-  console.log("data:", data)
+  
+  // Rate states with default values
+  const [minRate, setMinRate] = useState(0.75);
+  const [usdMxnRate, setUsdMxnRate] = useState(17.8);
 
-  // Helper to update both React state and Browser cache
+  // Initialize from LocalStorage on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const storedMin = localStorage.getItem(MIN_RATE_KEY);
+      const storedMxn = localStorage.getItem(USD_MXN_KEY);
+      
+      if (storedMin) setMinRate(parseFloat(storedMin));
+      if (storedMxn) setUsdMxnRate(parseFloat(storedMxn));
+    }
+  }, []);
+
   const updateData = (newData: any[]) => {
     setData(newData);
     localStorage.setItem(CACHE_KEY, JSON.stringify(newData));
@@ -32,11 +52,9 @@ export function ReportProvider({ children }: { children: React.ReactNode }) {
 
   const fetchToState = useCallback(async (range: TimeRange = 'mtd') => {
     if (!jwt) return;
-
     let start: number;
-    let end: number = dayjs().unix(); // Current time
+    let end: number = dayjs().unix();
 
-    // Calculate timestamps based on requested range
     switch (range) {
       case 'today':
         start = dayjs().startOf('day').unix();
@@ -54,18 +72,12 @@ export function ReportProvider({ children }: { children: React.ReactNode }) {
     setLoading(true);
     try {
       const response = await fetch(`/api/report?startTime=${start}&endTime=${end}`, {
-        headers: {
-          Authorization: `JWT ${jwt}`,
-        },
+        headers: { Authorization: `JWT ${jwt}` },
       });
 
-      if (!response.ok) {
-        console.error("Fetch failed:", response.status);
-        return;
-      }
+      if (!response.ok) return;
 
       const csvText = await response.text();
-
       const result = Papa.parse(csvText, {
         header: true,
         skipEmptyLines: true,
@@ -80,23 +92,12 @@ export function ReportProvider({ children }: { children: React.ReactNode }) {
     }
   }, [jwt]);
 
-  // 1. On Mount: Load from cache
-  // 2. If no cache and JWT exists: Trigger initial fetch
   useEffect(() => {
     const cached = localStorage.getItem(CACHE_KEY);
     if (cached) {
-      try {
-        setData(JSON.parse(cached));
-      } catch (e) {
-        console.error("Cache corrupted, clearing...");
-        localStorage.removeItem(CACHE_KEY);
-      }
+      try { setData(JSON.parse(cached)); } catch (e) { localStorage.removeItem(CACHE_KEY); }
     }
-
-    // Only auto-fetch if we have no data at all
-    if (!cached && jwt) {
-      fetchToState('mtd');
-    }
+    if (!cached && jwt) fetchToState('mtd');
   }, [jwt, fetchToState]);
 
   const clearData = () => {
@@ -104,8 +105,19 @@ export function ReportProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem(CACHE_KEY);
   };
 
+  // Pass rates to your transform helper
+  const cleaned = transformRawData(data);
+
   return (
-    <ReportContext.Provider value={{ data, loading, refreshData: fetchToState, clearData }}>
+    <ReportContext.Provider value={{
+        data, 
+        loading, 
+        refreshData: fetchToState, 
+        clearData, 
+        cleaned,
+        minRate,
+        usdMxnRate 
+      }}>
       {children}
     </ReportContext.Provider>
   );
@@ -113,8 +125,6 @@ export function ReportProvider({ children }: { children: React.ReactNode }) {
 
 export const useReport = () => {
   const context = useContext(ReportContext);
-  if (!context) {
-    throw new Error("useReport must be used within a ReportProvider");
-  }
+  if (!context) throw new Error("useReport must be used within a ReportProvider");
   return context;
 };
