@@ -1,0 +1,17 @@
+src/
+├── app/
+│   ├── (dashboard)/
+│   │   ├── layout.tsx        <-- Wrap with ReportProvider here
+│   │   ├── page.tsx          (General Overview)
+│   │   ├── monthly/
+│   │   │   └── page.tsx      (Monthly Table)
+│   │   └── detailed/
+│   │       └── page.tsx      (Detailed/Occupancy)
+├── components/
+│   └── ui/                   (Buttons, Tables, etc.)
+├── context/
+│   └── ReportContext.tsx     <-- Context + LocalStorage logic
+├── hooks/
+│   └── use-report.ts         <-- Custom hook for easy access
+└── lib/
+    └── utils.ts              (Calculations for occupancy/averages)
