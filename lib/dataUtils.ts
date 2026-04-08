@@ -85,8 +85,6 @@ export const transformToWeeklyData = (calls: CallData[], minRate: number): Weekl
       const callDuration = call.rawMinutes || 0; 
       w.amount += (callDuration * minRate);
 
-      const dateStr = date.format("M/D");
-      // ... (rest of your start/finish logic remains the same)
     }
   });
 

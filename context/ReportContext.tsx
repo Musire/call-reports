@@ -95,7 +95,11 @@ export function ReportProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const cached = localStorage.getItem(CACHE_KEY);
     if (cached) {
-      try { setData(JSON.parse(cached)); } catch (e) { localStorage.removeItem(CACHE_KEY); }
+      try { 
+        setData(JSON.parse(cached)); 
+      } catch { 
+        localStorage.removeItem(CACHE_KEY); 
+      }
     }
     if (!cached && jwt) fetchToState('mtd');
   }, [jwt, fetchToState]);

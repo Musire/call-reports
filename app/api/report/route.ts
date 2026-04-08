@@ -43,7 +43,7 @@ export async function GET(req: NextRequest): Promise<Response> {
         "Content-Disposition": "attachment; filename=report.csv",
       },
     });
-  } catch (err) {
+  } catch {
     return new Response("Server error", { status: 500 });
   }
 }

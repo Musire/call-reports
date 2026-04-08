@@ -3,14 +3,14 @@
 import { Button } from "@/components/ui/buttons";
 import { useJwt } from "@/hooks";
 import * as Papa from "papaparse";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export default function Dashboard() {
   const { jwt, setToken } = useJwt();
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const fetchToState = async () => {
+  const fetchToState = useCallback( async () => {
     if (!jwt) return;
     
     setLoading(true);
@@ -42,12 +42,12 @@ export default function Dashboard() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [jwt, setData, setLoading])
 
   // 1. Fetch on Mount
   useEffect(() => {
     fetchToState();
-  }, []); 
+  }, [fetchToState]); 
 
   return (
     <div className="p-6 space-y-4">

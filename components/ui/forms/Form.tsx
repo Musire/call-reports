@@ -48,7 +48,7 @@ export default function Form<S extends z.ZodObject<any>> ({ initialValues, onSub
     }, 1000)
 
       return () => clearTimeout(timeoutId);
-    }, [isSubmitSuccessful, reset]);
+    }, [isSubmitSuccessful, reset, setError]);
     
     const wrappedSubmit: SubmitHandler<z.infer<S>> = async (data, e) => {
       clearErrors("root.server"); // clear previous server errors

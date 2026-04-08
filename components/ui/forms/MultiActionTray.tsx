@@ -24,7 +24,6 @@ export default function ActionTray({ controls, formState }: ActionTrayProps) {
     } = formState
 
     const  {
-        index,
         isFirst,
         isLast,
         onNext,

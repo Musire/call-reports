@@ -1,6 +1,5 @@
 "use client";
 
-import { Body } from "@/components/ui";
 import {
   Card,
   CardContent
@@ -13,57 +12,54 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useReport } from "@/context/ReportContext";
 import { RefreshButton } from "@/domains/dashboard/components";
+import { useTodayReport } from "@/hooks";
 import { formatCurrency } from "@/lib/formatUtils";
-import dayjs from "dayjs";
+import { Phone, Timer, Wallet } from "lucide-react";
 
 export default function TodayTable() {
-  const { cleaned, minRate } = useReport();
-  const today = dayjs().startOf("day");
-
-  // 1. Filter today's data
-  const todayData = cleaned
-    .filter((call) => call.rawDate.isSame(today, "day"))
-    .sort((a, b) => b.rawDate.valueOf() - a.rawDate.valueOf());
-
-  // 2. Calculate today's totals
-  const todayTotals = todayData.reduce(
-    (acc, curr) => {
-      // Convert formatted string back to exact cents (e.g., "$3.68" -> 368)
-      const cents = Math.round(parseFloat(curr.usd.replace(/[$,]/g, "")) * 100);
-      
-      return {
-        count: acc.count + 1,
-        minutes: acc.minutes + curr.rawMinutes,
-        usdInCents: acc.usdInCents + cents,
-      };
-    },
-    { count: 0, minutes: 0, usdInCents: 0 }
-  );
-
-  // Convert back to dollars for display
-  const finalUsd = todayTotals.minutes * minRate;
+  const { todayData, todayTotals } = useTodayReport();
 
   return (
     <div className="stacked space-y-4">
       {/* Today's Stats Card */}
-      <Card className="surface-1 w-fit self-end">
-        <CardContent className="p-4 flex justify-end space-x-6">
-          <Body className="text-lg font-semibold tracking-tight">
-            {todayTotals.count} calls
-          </Body>
-          <Body className="text-lg font-semibold tracking-tight">
-            {todayTotals.minutes.toFixed(1)} mins
-          </Body>
-          <Body className="text-lg font-semibold tracking-tight">
-            {formatCurrency(finalUsd)}
-          </Body>
-        </CardContent>
-      </Card>
-
+      <div className="flex space-x-4 self-end ">
+        <Card className="w-fit shrink-0">
+          <CardContent className="flex space-x-4">
+            <span className="centered bg-surface-3 rounded-full size-8">
+              <Phone size={20} strokeWidth={1} />
+            </span>
+            <dl>
+              <dt className="text-fluid text-else">Calls</dt>
+              <dd className="text-fluid-xl">{todayTotals.count}</dd>
+            </dl>
+          </CardContent>
+        </Card>
+        <Card className="w-fit shrink-0">
+          <CardContent className="flex space-x-4">
+            <span className="centered bg-surface-3 rounded-full size-8">
+              <Timer size={20} strokeWidth={1} />
+            </span>
+            <dl>
+              <dt className="text-fluid text-else">Minutes</dt>
+              <dd className="text-fluid-xl">{todayTotals.minutes.toFixed(1)}</dd>
+            </dl>
+          </CardContent>
+        </Card>
+        <Card className="w-fit shrink-0">
+          <CardContent className="flex space-x-4">
+            <span className="centered bg-surface-3 rounded-full size-8">
+              <Wallet size={20} strokeWidth={1} />
+            </span>
+            <dl>
+              <dt className="text-fluid text-else">Earnings</dt>
+              <dd className="text-fluid-xl">{formatCurrency(todayTotals.usd)}</dd>
+            </dl>
+          </CardContent>
+        </Card>
+      </div>
       {/* Table Section */}
-      <div className="rounded-md border surface-1">
+      <div className="rounded-md border surface-1 max-w-4xl min-w-114 self-end">
         <Table>
           <TableHeader>
             <TableRow>

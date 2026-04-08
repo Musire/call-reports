@@ -58,8 +58,6 @@ const useCallEarnings = () => {
 
     const projectedTotalUsd = avgDailyEarningsUsd * totalBusinessDays;
 
-    const format = (val: number) => (Math.round(val * 100) / 100).toFixed(2);
-
     return {
       totalBusinessDays,
       businessDaysRemaining,

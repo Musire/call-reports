@@ -3,19 +3,8 @@
 import { Check, Home } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 
 export default function SuccessDisplay () {
-    const router = useRouter();
-
-    // useEffect(() => {
-    //     const timer = setTimeout(() => {
-    //     router.push("/dashboard"); // change route
-    //     }, 2500);
-
-    //     return () => clearTimeout(timer); // cleanup
-    // }, [router]);
-    
     return (
         <div className=" bg-darkest min-h-[50dvh] h-[70dvh] relative w-1/2 mx-auto p-6 centered">
             <Image

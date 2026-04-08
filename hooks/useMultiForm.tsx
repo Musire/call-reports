@@ -44,7 +44,7 @@ export default function useMultiForm <T extends FieldValues, S extends z.ZodType
     // set form error to the global error passed
     useEffect(() => {
           if(error) setError("root.server", { type: "server", message: error })
-    }, [error])
+    }, [error, setError])
 
     return {
         trigger,
