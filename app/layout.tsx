@@ -1,8 +1,8 @@
+import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
-import { Inter } from "next/font/google";
-import { cn } from "@/lib/utils";
 
 const inter = Inter({subsets:['latin'],variable:'--font-sans'});
 
@@ -18,10 +18,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning className={cn("font-sans", inter.variable)}>
-      {/* Leave <head> empty or omit it; Next.js manages it via metadata */}
-      <head />
-      <body className="font-poppins text-main">
-        {/* Move the Script here. Next.js will still place it in the head in the final HTML */}
+      <head >
         <Script
           id="theme-switcher"
           strategy="beforeInteractive"
@@ -38,6 +35,10 @@ export default function RootLayout({
             `,
           }}
         />
+      </head>
+      <body className="font-poppins text-main">
+
+        
         {children}
       </body>
     </html>

@@ -58,8 +58,10 @@ interface WeeklySummary {
   avg: number;
 }
 
+
 export const transformToWeeklyData = (calls: CallData[], minRate: number): WeeklySummary[] => {
-  const weeks: WeeklySummary[] = Array.from({ length: 6 }, (_, i) => ({
+  // Use a temporary type to track actual Date objects for comparison
+  const weeks: (WeeklySummary & { _startRef?: any; _finishRef?: any })[] = Array.from({ length: 6 }, (_, i) => ({
     week: `Week ${i + 1}`,
     start: "",
     finish: "",
@@ -71,20 +73,31 @@ export const transformToWeeklyData = (calls: CallData[], minRate: number): Weekl
 
   calls.forEach((call) => {
     const date = call.rawDate;
-    const startOfMonth = date.startOf('month');
+    const startOfMonth = date.clone().startOf('month');
     const dayOfMonth = date.date();
     const firstDayOffset = startOfMonth.day() === 0 ? 6 : startOfMonth.day() - 1;
     const weekIndex = Math.floor((dayOfMonth + firstDayOffset - 1) / 7);
 
     if (weekIndex >= 0 && weekIndex < 6) {
       const w = weeks[weekIndex];
+      const dateStr = date.format("MM/DD"); // Simplified to MM/DD as requested
+      
+      // Update start if it's the first call seen or an earlier date
+      if (!w._startRef || date.isBefore(w._startRef)) {
+        w._startRef = date;
+        w.start = dateStr;
+      }
+      
+      // Update finish if it's the first call seen or a later date
+      if (!w._finishRef || date.isAfter(w._finishRef)) {
+        w._finishRef = date;
+        w.finish = dateStr;
+      }
+
       activeDaysPerWeek[weekIndex].add(date.format("YYYY-MM-DD"));
       
-      // NEW CALCULATION: minutes * rate
-      // Replace 'duration' with your actual CallData property name
       const callDuration = call.rawMinutes || 0; 
       w.amount += (callDuration * minRate);
-
     }
   });
 
@@ -92,11 +105,12 @@ export const transformToWeeklyData = (calls: CallData[], minRate: number): Weekl
     const uniqueDayCount = activeDaysPerWeek[i].size;
     
     return {
-      ...w,
+      week: w.week,
+      start: w.start,
+      finish: w.finish,
       amount: parseFloat(w.amount.toFixed(2)),
-      // Calculating average based on the new total amount
       avg: uniqueDayCount > 0 
-        ? parseFloat((w.amount / uniqueDayCount).toFixed(4)) // 4 decimals as requested earlier
+        ? parseFloat((w.amount / uniqueDayCount).toFixed(4))
         : 0,
     };
   });

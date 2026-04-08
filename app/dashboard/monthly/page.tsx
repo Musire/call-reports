@@ -1,5 +1,6 @@
 'use client';
 
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -13,6 +14,7 @@ import { RefreshButton } from "@/domains/dashboard/components";
 import { useReportData } from "@/hooks";
 import { formatCurrency } from "@/lib/formatUtils";
 import dayjs from "dayjs";
+import { Phone, Timer, Wallet } from "lucide-react";
 
 export default function MonthlyPage() {
   const { cleaned, usdMxnRate } = useReport();
@@ -22,12 +24,41 @@ export default function MonthlyPage() {
   return (
     <div className="space-y-4">
       {/* 🔵 Totals Header (no labels) */}
-      <div className="border-b pb-2 px-2 flex justify-end space-x-6 text-lg font-semibold tracking-tight">
-        <span>{totals.count} calls</span>
-        <span>{totals.minutes.toFixed(1)} mins</span>
-        <span>{formatCurrency(totals.usd)}</span>
+      <div className="flex space-x-4 self-end ">
+        <Card className="w-fit shrink-0">
+          <CardContent className="flex space-x-2">
+            <span className="centered bg-surface-3 rounded-full size-7">
+              <Phone size={15} strokeWidth={1} />
+            </span>
+            <dl>
+              <dt className="text-fluid text-else">Calls</dt>
+              <dd className="text-fluid-xl">{totals.count}</dd>
+            </dl>
+          </CardContent>
+        </Card>
+        <Card className="w-fit shrink-0">
+          <CardContent className="flex space-x-2">
+            <span className="centered bg-surface-3 rounded-full size-7">
+              <Timer size={15} strokeWidth={1} />
+            </span>
+            <dl>
+              <dt className="text-fluid text-else">Minutes</dt>
+              <dd className="text-fluid-xl">{totals.minutes.toFixed(1)}</dd>
+            </dl>
+          </CardContent>
+        </Card>
+        <Card className="w-fit shrink-0">
+          <CardContent className="flex space-x-2">
+            <span className="centered bg-surface-3 rounded-full size-7">
+              <Wallet size={15} strokeWidth={1} />
+            </span>
+            <dl>
+              <dt className="text-fluid text-else">Earnings</dt>
+              <dd className="text-fluid-xl">{formatCurrency(totals.usd)}</dd>
+            </dl>
+          </CardContent>
+        </Card>
       </div>
-
       {/* 🔵 Table */}
       <div className="surface-1 rounded-md border h-[65vh] overflow-y-auto relative">
         <Table>

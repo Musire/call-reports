@@ -12,7 +12,7 @@ export default function RefreshButton() {
     <Button
       variant="secondary"
       className={cn(
-        "fixed top-2 right-6 z-50", 
+        "fixed top-3 right-6 z-50", 
         "min-w-0 w-10 h-10 p-0 flex items-center justify-center",
         loading && "opacity-50 pointer-events-none"
       )}
