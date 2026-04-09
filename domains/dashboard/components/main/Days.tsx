@@ -1,5 +1,7 @@
-import { Card, CardContent } from "@/components/ui/card";
+import { Label } from "@/components/ui";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { formatCurrency } from "@/lib/formatUtils";
+import { TrendingUp } from "lucide-react";
 
 type Props = {
     data: {
@@ -20,10 +22,15 @@ export default function Days({ data }: Props) {
     ];
 
     return (
-        <Card className="surface-1 min-w-60">
-            <CardContent className="evenly">
+        <Card className="surface-1 min-w-60 p-6">
+            <CardTitle className="flex items-center space-x-2">
+                <TrendingUp strokeWidth={1} />
+                <Label>Summary</Label>
+            </CardTitle>
+            <CardContent className="evenly divide-x-2 divide-darker">
+                
                 {stats.map((stat) => (
-                    <dl key={stat.label} className="flex flex-col items-center gap-1">
+                    <dl key={stat.label} className="last:pr-0 pr-4 flex flex-col items-center gap-1">
                         <dt className="text-fluid-xs text-muted-foreground">{stat.label}</dt>
                         <dd className="text-fluid-lg">{stat.value}</dd>
                     </dl>

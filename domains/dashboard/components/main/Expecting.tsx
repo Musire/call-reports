@@ -1,3 +1,4 @@
+import { Label } from "@/components/ui";
 import {
     Table,
     TableBody,
@@ -6,6 +7,7 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { formatCurrency } from "@/lib/formatUtils";
+import { PiggyBank } from "lucide-react";
 
 // Define the shape of each row to make the map cleaner
 type CurrencyRow = {
@@ -33,7 +35,11 @@ export default function Expecting({ data }: Props) {
     ];
 
     return (
-        <div className="w-full max-w-3xl surface-1 p-6 rounded-xl">
+        <div className="w-full  surface-1 p-6 rounded-xl">
+            <span className="font-heading text-sm font-medium flex items-center space-x-2 pb-4">
+                <PiggyBank strokeWidth={1} />
+                <Label className="font-[]">Expecting</Label>
+            </span>
             <Table>
                 <TableHeader>
                     <TableRow>

@@ -13,7 +13,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <a href="/dashboard/detailed" className="hover:underline">Detailed</a>
           </nav>
         </header>
-        <main className="flex-1 p-6">{children}</main>
+        <main className="flex-1 p-6 flex flex-col">{children}</main>
       </div>
     </ReportProvider>
   );
