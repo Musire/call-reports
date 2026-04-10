@@ -24,8 +24,8 @@ export default function MonthlyPage() {
   return (
     <div className="space-y-4">
       {/* 🔵 Totals Header (no labels) */}
-      <div className="flex space-x-4 self-end ">
-        <Card className="w-fit shrink-0">
+      <div className="flex space-x-4 w-full overflow-x-scroll scrollbar-none">
+        <Card className="w-fit shrink-0 bg-surface-1">
           <CardContent className="flex space-x-2">
             <span className="centered bg-surface-3 rounded-full size-7">
               <Phone size={15} strokeWidth={1} />
@@ -36,7 +36,7 @@ export default function MonthlyPage() {
             </dl>
           </CardContent>
         </Card>
-        <Card className="w-fit shrink-0">
+        <Card className="w-fit shrink-0 bg-surface-1">
           <CardContent className="flex space-x-2">
             <span className="centered bg-surface-3 rounded-full size-7">
               <Timer size={15} strokeWidth={1} />
@@ -47,7 +47,7 @@ export default function MonthlyPage() {
             </dl>
           </CardContent>
         </Card>
-        <Card className="w-fit shrink-0">
+        <Card className="w-fit shrink-0 bg-surface-1">
           <CardContent className="flex space-x-2">
             <span className="centered bg-surface-3 rounded-full size-7">
               <Wallet size={15} strokeWidth={1} />
@@ -60,10 +60,10 @@ export default function MonthlyPage() {
         </Card>
       </div>
       {/* 🔵 Table */}
-      <div className="surface-1 rounded-md border h-[65vh] overflow-y-auto relative">
-        <Table>
+      <div className="surface-1 rounded-md border border-border max-h-[65vh] overflow-y-auto relative">
+        <Table >
           <TableHeader>
-            <TableRow className="hover:bg-transparent">
+            <TableRow className="hover:bg-transparent border-border">
               <TableHead className="sticky top-0 bg-surface-1 z-20">Date</TableHead>
               <TableHead className="sticky top-0 bg-surface-1 z-20">Day</TableHead>
               <TableHead className="sticky top-0 bg-surface-1 z-20 text-center">#</TableHead>
@@ -75,14 +75,14 @@ export default function MonthlyPage() {
 
           <TableBody>
             {groupedData.length === 0 ? (
-              <TableRow>
+              <TableRow className="border-border">
                 <TableCell colSpan={6} className="h-24 text-center">
                   No records found.
                 </TableCell>
               </TableRow>
             ) : (
               groupedData.map((row) => (
-                <TableRow key={row.date}>
+                <TableRow key={row.date} className="border-border">
                   <TableCell className="font-medium">{row.date}</TableCell>
                   <TableCell>{dayjs(row.date).format('dddd')}</TableCell>
                   <TableCell className="text-center">{row.count}</TableCell>

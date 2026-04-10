@@ -1,4 +1,6 @@
 import dayjs, { Dayjs } from 'dayjs';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+dayjs.extend(customParseFormat);
 
 export interface CallData {
   date: string;
@@ -114,4 +116,78 @@ export const transformToWeeklyData = (calls: CallData[], minRate: number): Weekl
         : 0,
     };
   });
+};
+
+
+export const processReportData = (data: CallData[], minRate: number) => {
+  const grouped: Record<string, any> = {};
+
+  const getHour = (time: string): number | null => {
+    if (!time) return null;
+
+    const t = time.trim().toUpperCase();
+
+    if (t.includes(":")) {
+      const parts = t.split(":");
+      let hour = parseInt(parts[0], 10);
+
+      if (isNaN(hour)) return null;
+
+      if (t.includes("PM") && hour !== 12) hour += 12;
+      if (t.includes("AM") && hour === 12) hour = 0;
+
+      return hour;
+    }
+
+    if (t.includes("AM") || t.includes("PM")) {
+      let hour = parseInt(t.replace(/[^0-9]/g, ""), 10);
+
+      if (isNaN(hour)) return null;
+
+      if (t.includes("PM") && hour !== 12) hour += 12;
+      if (t.includes("AM") && hour === 12) hour = 0;
+
+      return hour;
+    }
+
+    const hour = parseInt(t, 10);
+    if (!isNaN(hour)) return hour;
+
+
+    return null;
+  };
+
+  data.forEach((call, i) => {
+    const dateStr = call.date;
+
+    if (!grouped[dateStr]) {
+      grouped[dateStr] = {
+        date: dateStr,
+        hourlyUsd: {},
+        totalMinutes: 0,
+        maxInRow: 0
+      };
+    }
+
+    const hour = getHour(call.start);
+
+
+    if (hour !== null && hour >= 6 && hour <= 19) {
+      const currentUsd = grouped[dateStr].hourlyUsd[hour] || 0;
+      const newUsd = currentUsd + (call.rawMinutes * minRate);
+
+      grouped[dateStr].hourlyUsd[hour] = newUsd;
+
+      if (newUsd > grouped[dateStr].maxInRow) {
+        grouped[dateStr].maxInRow = newUsd;
+      }
+    }
+
+    grouped[dateStr].totalMinutes += call.rawMinutes;
+  });
+
+  return Object.values(grouped).map((row) => ({
+    ...row,
+    occupancy: ((row.totalMinutes / 600) * 100).toFixed(2) + "%"
+  }));
 };

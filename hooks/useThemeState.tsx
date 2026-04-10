@@ -1,34 +1,36 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export default function useThemeState() {
   const [isDark, setIsDark] = useState(false);
 
-  // 1. The Toggle Function (Updates the DOM directly)
+  // 1. Load theme on mount
+  useEffect(() => {
+    const stored = localStorage.getItem("theme");
+
+    if (stored === "dark") {
+      document.documentElement.classList.add("dark");
+      setIsDark(true);
+    } else {
+      document.documentElement.classList.remove("dark");
+      setIsDark(false);
+    }
+  }, []);
+
+  // 2. Toggle theme
   const toggleTheme = useCallback(() => {
     const root = document.documentElement;
-    const isNowDark = root.classList.toggle("dark");
-    localStorage.setItem("theme", isNowDark ? "dark" : "light");
-  }, []);
+    const next = !isDark;
 
-  // 2. The Observer (Syncs React state to the DOM)
-  useEffect(() => {
-    const root = document.documentElement;
-    
-    // Initial sync on mount
-    setIsDark(root.classList.contains("dark"));
+    if (next) {
+      root.classList.add("dark");
+    } else {
+      root.classList.remove("dark");
+    }
 
-    const observer = new MutationObserver(() => {
-      setIsDark(root.classList.contains("dark"));
-    });
-
-    observer.observe(root, { 
-      attributes: true, 
-      attributeFilter: ["class"] 
-    });
-
-    return () => observer.disconnect();
-  }, []);
+    localStorage.setItem("theme", next ? "dark" : "light");
+    setIsDark(next);
+  }, [isDark]);
 
   return { isDark, toggleTheme };
 }

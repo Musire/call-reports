@@ -21,11 +21,11 @@ export default function TodayTable() {
   const { todayData, todayTotals } = useTodayReport();
 
   return (
-    <div className="stacked space-y-4">
+    <div className="stacked space-y-4 ">
       {/* Today's Stats Card */}
-      <div className="flex space-x-4 self-end ">
-        <Card className="w-fit shrink-0">
-          <CardContent className="flex space-x-4">
+      <div className="flex space-x-4 overflow-x-scroll scrollbar-none w-full">
+        <Card className="w-fit shrink-0 bg-surface-1 ">
+          <CardContent className="flex space-x-4 ">
             <span className="centered bg-surface-3 rounded-full size-8">
               <Phone size={20} strokeWidth={1} />
             </span>
@@ -35,7 +35,7 @@ export default function TodayTable() {
             </dl>
           </CardContent>
         </Card>
-        <Card className="w-fit shrink-0">
+        <Card className="w-fit shrink-0 bg-surface-1">
           <CardContent className="flex space-x-4">
             <span className="centered bg-surface-3 rounded-full size-8">
               <Timer size={20} strokeWidth={1} />
@@ -46,7 +46,7 @@ export default function TodayTable() {
             </dl>
           </CardContent>
         </Card>
-        <Card className="w-fit shrink-0">
+        <Card className="w-fit shrink-0 bg-surface-1 rounded-xl border-none">
           <CardContent className="flex space-x-4">
             <span className="centered bg-surface-3 rounded-full size-8">
               <Wallet size={20} strokeWidth={1} />
@@ -59,11 +59,10 @@ export default function TodayTable() {
         </Card>
       </div>
       {/* Table Section */}
-      <div className="rounded-md border surface-1 max-w-4xl min-w-114 self-end">
+      <div className="rounded-md border border-border surface-1 max-w-4xl w-full self-end">
         <Table>
           <TableHeader>
-            <TableRow>
-              <TableHead>Date</TableHead>
+            <TableRow className="border-border">
               <TableHead>Start</TableHead>
               <TableHead>End</TableHead>
               <TableHead>Min</TableHead>
@@ -74,7 +73,6 @@ export default function TodayTable() {
             {todayData.length > 0 ? (
               todayData.map((call, index) => (
                 <TableRow key={index}>
-                  <TableCell>{call.date}</TableCell>
                   <TableCell>{call.start}</TableCell>
                   <TableCell>{call.end}</TableCell>
                   <TableCell>{call.min}</TableCell>

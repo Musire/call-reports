@@ -35,14 +35,14 @@ export default function Expecting({ data }: Props) {
     ];
 
     return (
-        <div className="w-full  surface-1 p-6 rounded-xl">
+        <div className="w-full  surface-1 px-6 py-4 rounded-xl">
             <span className="font-heading text-sm font-medium flex items-center space-x-2 pb-4">
                 <PiggyBank strokeWidth={1} />
                 <Label className="font-[]">Expecting</Label>
             </span>
             <Table>
                 <TableHeader>
-                    <TableRow>
+                    <TableRow className="border-border">
                         <TableCell>Currency</TableCell>
                         <TableCell className="text-right">Actual</TableCell>
                         <TableCell className="text-right">Projected</TableCell>
@@ -50,7 +50,7 @@ export default function Expecting({ data }: Props) {
                 </TableHeader>
                 <TableBody>
                     {rows.map((row) => (
-                        <TableRow key={row.label}>
+                        <TableRow key={row.label} className="border-border">
                             <TableCell className="px-2 py-1">{row.label}</TableCell>
                             <TableCell className="px-2 py-1 text-right">
                                 {formatCurrency(row.actual)}

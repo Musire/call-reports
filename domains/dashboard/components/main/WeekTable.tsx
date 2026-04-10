@@ -23,10 +23,10 @@ export default function WeeklyTable() {
     : 0;
 
   return (
-    <div className="w-full  surface-1 max-w-3xl p-6 rounded-xl">
+    <div className="w-full surface-1 max-w-3xl py-2 px-6 rounded-xl border-border">
       <Table>
         <TableHeader>
-          <TableRow>
+          <TableRow className="border-border">
             <TableHead></TableHead>
             <TableHead>Start</TableHead>
             <TableHead>Finish</TableHead>
@@ -37,7 +37,7 @@ export default function WeeklyTable() {
 
         <TableBody>
           {data.map((row, i) => (
-            <TableRow key={i}>
+            <TableRow key={i} className="border-border">
               <TableCell>{row.week}</TableCell>
               <TableCell>{row.start}</TableCell>
               <TableCell>{row.finish}</TableCell>
@@ -51,7 +51,7 @@ export default function WeeklyTable() {
           ))}
 
           {/* Spacer row */}
-          <TableRow>
+          <TableRow className="border-border">
             <TableCell colSpan={5} className="h-6 border-none" />
           </TableRow>
 

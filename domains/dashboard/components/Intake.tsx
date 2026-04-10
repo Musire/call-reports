@@ -17,7 +17,7 @@ export default function Intake () {
     } 
     
     return (
-        <div className="p-6 surface-1 rounded-2xl border-border border">
+        <div className="p-6 surface-1 rounded-2xl ">
             <Form
                 initialValues={{ jwt: ''}}
                 schema={schema}

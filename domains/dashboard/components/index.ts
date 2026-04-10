@@ -1,4 +1,5 @@
-export { default as Dashboard } from './Dashboard';
 export { default as Intake } from './Intake';
-export { default as Rendering } from './Rendering';
-export * from "./main"
+export * from "./main";
+export { default as Navbar } from './Navbar';
+export { default as Navlink } from './Navlink';
+export { default as ViewToken } from './ViewToken';

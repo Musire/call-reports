@@ -4,21 +4,33 @@ import { useThemeState } from "@/hooks";
 import clsx from "clsx";
 import { Moon, Sun } from "lucide-react";
 
-
-export default function Theme () {
-    const { isDark, toggleTheme } = useThemeState()
+export default function Theme() {
+    const { isDark, toggleTheme } = useThemeState();
     
     return (
-        <button onClick={toggleTheme} className="surface-2 rounded-full h-7 px-1 py-1 w-14 flex items-center relative">
+        <button
+            onClick={(e) => {
+                e.preventDefault()
+                toggleTheme()
+            }}
+            type="button"
+            aria-label="Toggle Theme"
+            className="relative surface-2 rounded-full h-7 px-1 py-1 w-14 flex items-center cursor-pointer "
+        >
             <div className={clsx(
-                "size-6 blip p-1 centered rounded-full bg-background",
-                {
-                    "translate-x-full border-border border ": isDark,
-                }
-                
+                "size-6 p-1 flex items-center justify-center rounded-full bg-background transition-transform duration-200 ease-in-out pointer-events-none",
+                isDark ? "translate-x-6 border border-border" : "translate-x-0"
             )}>
-                {!isDark ? <Sun /> : <Moon />}
+                {isDark ? <Moon size={14} /> : <Sun size={14} />}
             </div>
         </button>
     );
 }
+
+
+
+
+
+
+
+

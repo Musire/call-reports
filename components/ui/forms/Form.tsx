@@ -52,6 +52,10 @@ export default function Form<S extends z.ZodObject<any>> ({ initialValues, onSub
     
     const wrappedSubmit: SubmitHandler<z.infer<S>> = async (data, e) => {
       clearErrors("root.server"); // clear previous server errors
+      if (e) {
+        e.preventDefault()
+      } 
+        
       try {
         await onSubmit(data, e);
       } catch (err: any) {
@@ -63,6 +67,7 @@ export default function Form<S extends z.ZodObject<any>> ({ initialValues, onSub
     return (
       <FormProvider {...methods}>
         <form
+          method="POST"
           className="flex flex-col min-w-72 max-w-lg w-full grow h-full space-y-4 "
           onSubmit={handleSubmit(wrappedSubmit)}
         >

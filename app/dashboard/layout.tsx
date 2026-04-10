@@ -1,19 +1,16 @@
+import { Theme } from "@/components/ui";
 import { ReportProvider } from "@/context/ReportContext";
+import { Navbar } from "@/domains/dashboard/components";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
     <ReportProvider>
-      <div className="flex flex-col min-h-screen">
-        <header className="border-b p-4 flex justify-between items-center">
-          <h1 className="font-bold text-fluid-xl ">Logo</h1>
-          <nav className="flex gap-4 text-sm mr-20">
-            <a href="/dashboard" className="hover:underline">Today</a>
-            <a href="/dashboard/monthly" className="hover:underline">Monthly</a>
-            <a href="/dashboard/overview" className="hover:underline">Overview</a>
-            <a href="/dashboard/detailed" className="hover:underline">Detailed</a>
-          </nav>
+      <div className="flex flex-col min-h-screen overflow-y-auto scrollbar-none">
+        <header className="border-b py-4 px-6 flex space-x-4 items-center">
+          <Theme />
+          <Navbar />
         </header>
-        <main className="flex-1 p-6 flex flex-col">{children}</main>
+        <main className="flex-1 p-6 flex flex-col scrollbar-none">{children}</main>
       </div>
     </ReportProvider>
   );

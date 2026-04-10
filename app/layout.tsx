@@ -1,7 +1,6 @@
 import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import Script from "next/script";
 import "./globals.css";
 
 const inter = Inter({subsets:['latin'],variable:'--font-sans'});
@@ -17,18 +16,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning className={cn("font-sans", inter.variable)}>
-      <head >
-        <Script
-          id="theme-switcher"
-          strategy="beforeInteractive"
+    <html data-scroll-behavior="smooth" lang="en" suppressHydrationWarning className={cn(" w-dvw h-dvh overflow-y-auto overflow-x-hidden scrollbar-none", inter.variable)}>
+      <head>
+        {/* Use a standard script tag instead of next/script for immediate execution */}
+        <script
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
                 try {
                   const theme = localStorage.getItem('theme');
-                  if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                  const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+                  if (theme === 'dark' || (!theme && supportDarkMode)) {
                     document.documentElement.classList.add('dark');
+                  } else {
+                    document.documentElement.classList.remove('dark');
                   }
                 } catch (e) {}
               })();
@@ -36,11 +37,10 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="font-poppins text-main">
-
-        
+      <body className="font-poppins text-main bg-background">
         {children}
       </body>
     </html>
   );
 }
+
