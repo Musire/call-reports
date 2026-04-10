@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "prod": "rm -rf .next && npm run build && npm run start",
     "dev:clear": "cls && next dev",
     "build": "next build",
     "start": "next start",
