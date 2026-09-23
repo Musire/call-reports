@@ -11,7 +11,7 @@ export default function TodayTable() {
   const { todayData, todayTotals } = useTodayReport();
 
   return (
-    <PageSection className=" bg-o">
+    <PageSection className=" ">
       <RefreshButton />
       {/* Today's Stats Card */}
       <div className="spaced overflow-x-scroll scrollbar-none w-full ">

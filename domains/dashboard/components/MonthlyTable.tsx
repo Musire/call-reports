@@ -35,7 +35,7 @@ export default function MonthlyTable ({ data, usdMxnRate }: Props) {
                 </TableHeader>
 
                 <TableBody>
-                    {!!data.length ? (
+                    {!data.length ? (
                     <TableRow className="border-border">
                         <TableCell colSpan={6} className="h-24 text-center">
                         No records found.
