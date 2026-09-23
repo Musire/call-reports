@@ -8,20 +8,14 @@ import {
     TableHeader,
     TableRow
 } from "@/components/ui/table";
+import { DailyGroup } from "@/hooks/useReportData";
 import { formatCurrency } from "@/lib/formatUtils";
 import dayjs from "dayjs";
 
 
-type Row = {
-    date: string;
-    count: string;
-    minutes: number;
-    usd: number;
-}
-
 type Props = {
     usdMxnRate: number
-    data: Row[]
+    data: DailyGroup[]
 }
 
 export default function MonthlyTable ({ data, usdMxnRate }: Props) {

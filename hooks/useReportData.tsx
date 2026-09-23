@@ -8,7 +8,7 @@ interface CallRecord {
   rawUsd: number;
 }
 
-interface DailyGroup {
+export interface DailyGroup {
   date: string;
   dayName: string;
   count: number;
