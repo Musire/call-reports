@@ -12,9 +12,16 @@ import { formatCurrency } from "@/lib/formatUtils";
 import dayjs from "dayjs";
 
 
+type Row = {
+    date: string;
+    count: string;
+    minutes: number;
+    usd: number;
+}
+
 type Props = {
-    data: any;
     usdMxnRate: number
+    data: Row[]
 }
 
 export default function MonthlyTable ({ data, usdMxnRate }: Props) {
@@ -34,7 +41,7 @@ export default function MonthlyTable ({ data, usdMxnRate }: Props) {
                 </TableHeader>
 
                 <TableBody>
-                    {data.length === 0 ? (
+                    {!!data.length ? (
                     <TableRow className="border-border">
                         <TableCell colSpan={6} className="h-24 text-center">
                         No records found.

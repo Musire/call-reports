@@ -1,16 +1,23 @@
 "use client";
 
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
 } from "@/components/ui/table";
 
+type Call = {
+    start: string;
+    end: string;
+    min: string;
+    usd: string;
+}
+
 type Props = {
-  data: any
+  data: Call[]
 }
 
 export default function SummaryTable ({ data }: Props) {
