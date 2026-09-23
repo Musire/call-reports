@@ -13,7 +13,7 @@ export default function ViewToken() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           {hasToken ? (
-            <CheckCircle className="text-green-500" size={24} />
+            <CheckCircle className="text-success" size={24} />
           ) : (
             <XCircle className="text-error" size={24} />
           )}
@@ -25,7 +25,7 @@ export default function ViewToken() {
         {hasToken && (
           <button
             onClick={() => setToken(null)}
-            className="flex items-center gap-1 px-3 py-1 bg-error/20 text-error hover:bg-error hover:text-deep rounded-md transition-colors text-sm font-medium"
+            className="flex cursor-pointer normal-space items-center gap-1 px-3 py-1 bg-error/20 text-error hover:bg-error hover:text-deep rounded-md transition-colors text-sm font-medium"
           >
             <Trash2 size={16} />
             Clear

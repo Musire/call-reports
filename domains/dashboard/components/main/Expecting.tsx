@@ -36,9 +36,9 @@ export default function Expecting({ data }: Props) {
 
     return (
         <div className="w-full  surface-1 px-6 py-4 rounded-xl">
-            <span className="font-heading text-sm font-medium flex items-center space-x-2 pb-4">
-                <PiggyBank strokeWidth={1} />
-                <Label className="font-[]">Expecting</Label>
+            <span className="text-else font-medium spaced pb-4 ">
+                <PiggyBank strokeWidth={1} size={20} />
+                <Label className="text-xs text-else">Expecting</Label>
             </span>
             <Table>
                 <TableHeader>

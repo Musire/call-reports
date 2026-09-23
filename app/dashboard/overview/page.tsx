@@ -7,8 +7,8 @@ export default function GeneralOverview() {
 
     return (
         <div className="flex-1 flex ">
-            <Aggregate />
             <RefreshButton />
+            <Aggregate />
         </div>
     );
 }

@@ -11,10 +11,13 @@ export default function Intake () {
         jwt: z.string().min(1, 'Input needed')
     })
 
-    const handleSubmit = ({ jwt }: {jwt: string}) => {
-        if (!jwt) return
-        setToken(jwt)
-    } 
+    const handleSubmit = ({ jwt }: { jwt: string }) => {
+        if (!jwt) return;
+        
+        const cleanJwt = jwt.trim().replace(/^"|"$/g, '');
+        
+        setToken(cleanJwt);
+    }
     
     return (
         <div className="p-6 surface-1 rounded-2xl ">

@@ -47,14 +47,13 @@
     --surface-2: 0 0% 96%;
     --surface-3: 0 0% 96%;
 
-    --shadow-surface-1: 0 3px 10px rgba(0,0,0,0.15);
-    --shadow-surface-2: 0 10px 15px rgba(0,0,0,0.15);
-    --shadow-surface-3: 0 25px 50px rgba(0,0,0,0.25);
+    --shadow-surface-1: 0 3px 10px rgba(0, 0, 0, 0.15);
+    --shadow-surface-2: 0 10px 15px rgba(0, 0, 0, 0.15);
+    --shadow-surface-3: 0 25px 50px rgba(0, 0, 0, 0.25);
 
-    --main: 0, 0%, 13%;
-    --else: 0, 0%, 40%;
-    --disabled: 0, 0%, 63%;
-
+    --main: 0 0% 13%;
+    --else: 0 0% 40%;
+    --disabled: 0 0% 63%;
   }
 
   .dark {
@@ -81,7 +80,7 @@
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
 
-    --border:  0 0 37%;
+    --border: 0 0 37%;
     --input: 217.2 32.6% 17.5%;
     --ring: 212.7 26.8% 83.9%;
 
@@ -99,23 +98,21 @@
     --disabled: 0 0% 37%;
   }
 
-
   html {
-    scroll-behavior: smooth;
     data-scroll-behavior: "smooth";
-    @apply font-sans
+    @apply font-sans;
   }
 
-    /* Hide number input spinners across browsers */
-  input[type='number']::-webkit-outer-spin-button,
-  input[type='number']::-webkit-inner-spin-button {
+  /* Hide number input spinners across browsers */
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button {
     -webkit-appearance: none;
     margin: 0;
   }
 
-  input[type='number'] {
+  input[type="number"] {
     -moz-appearance: textfield; /* Firefox */
-    appearance: textfield;      /* Modern browsers */
+    appearance: textfield; /* Modern browsers */
   }
 }
 
@@ -132,8 +129,8 @@
   --breakpoint-2xl: 1536px;
 
   /*font-families*/
-  --font-roboto: "Roboto"; 
-  --font-michroma: "Michroma"; 
+  --font-roboto: "Roboto";
+  --font-michroma: "Michroma";
   --font-poppins: "Poppins", sans-serif;
   --font-playfair: "Playfair Display", serif;
   --font-greatvibes: "Great Vibes", cursive;
@@ -160,7 +157,7 @@
   --color-else: hsl(var(--else));
   --color-disabled: hsl(var(--disabled));
 
-  --color-o: #F6AD55; /* testing color*/
+  --color-o: #f6ad55; /* testing color*/
   --color-silver: #d9d9d9;
   --color-mid: #999999;
   --color-smoke: #707070;
@@ -171,9 +168,9 @@
   --color-deeper: #030303;
   --color-deepest: #000300;
 
-  --color-primary: #B08A3C;
-  --color-primary-hover: #C79A3E;
-  --color-alternate: #B6AB8C; /* accent color */
+  --color-primary: #b08a3c;
+  --color-primary-hover: #c79a3e;
+  --color-alternate: #b6ab8c; /* accent color */
   --color-error-dark: hsl(351, 57%, 62%); /* #D06679; */
   --color-error: hsl(349, 37%, 49%); /* #AC4F60; */
   --color-success-dark: hsla(150, 57%, 62%, 1); /* #67D59E; */
@@ -194,7 +191,7 @@
   /*animations*/
   --animate-slide-left: slide-left 300ms ease-in forwards;
   --animate-slide-right: slide-right 300ms ease-in forwards;
-  --animate-ghostIn: ghostIn 300ms ease-in forwards ;
+  --animate-ghostIn: ghostIn 300ms ease-in forwards;
   --animate-ghostOut: ghostOut 300ms ease-out forwards;
   --animate-slide: slide 20s ease-in-out infinite;
   --animate-fadeOut: fadeOut 200ms ease-out forwards;
@@ -318,11 +315,10 @@
       width: 100%;
     }
   }
-
 }
 
 @utility centered {
-  @apply flex flex-row justify-center items-center; 
+  @apply flex flex-row justify-center items-center;
 }
 
 @utility centered {
@@ -334,7 +330,7 @@
 }
 
 @utility stacked {
-  @apply flex flex-col space-y-6
+  @apply flex flex-col space-y-6;
 }
 
 @utility spaced {
@@ -378,39 +374,39 @@
 }
 
 @utility p-fluid {
-  @apply xs:px-4 md:px-[clamp(1.5rem,10vw,17rem)] ;
+  @apply xs:px-4 md:px-[clamp(1.5rem,10vw,17rem)];
 }
 
 @utility border-adjust {
-  @apply  border-disabled
+  @apply border-disabled;
 }
 
 @utility border-disabled {
-  @apply dark:border-white/8 border-black/12
+  @apply dark:border-white/8 border-black/12;
 }
 
 @utility ring-adjust {
-  @apply ring-2 ring-whitesmoke/20
+  @apply ring-2 ring-whitesmoke/20;
 }
 
 @utility page-layout {
-  @apply min-h-dvh w-dvw centered bg-darker
+  @apply min-h-dvh w-dvw centered bg-darker;
 }
 
 @utility display-layout {
-  @apply min-h-dvh bg-deeper relative xs:w-screen  md:w-[85dvw] lg:w-[70dvw] px-6 text-whitesmoke  flex flex-col py-6
+  @apply min-h-dvh bg-deeper relative xs:w-screen  md:w-[85dvw] lg:w-[70dvw] px-6 text-whitesmoke  flex flex-col py-6;
 }
 
 @utility surface-1 {
-  @apply bg-surface-1 shadow-(--shadow-surface-1)
+  @apply bg-surface-1 shadow-(--shadow-surface-1);
 }
 
 @utility surface-2 {
-  @apply bg-surface-2 shadow-(--shadow-surface-2) 
+  @apply bg-surface-2 shadow-(--shadow-surface-2);
 }
 
 @utility surface-3 {
-  @apply bg-surface-3 shadow-(--shadow-surface-3) 
+  @apply bg-surface-3 shadow-(--shadow-surface-3);
 }
 
 @utility heading-1 {

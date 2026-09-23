@@ -22,12 +22,12 @@ export default function Days({ data }: Props) {
     ];
 
     return (
-        <Card className="surface-1 min-w-60 px-6 py-3">
-            <CardTitle className="flex items-center space-x-2">
-                <TrendingUp strokeWidth={1} />
-                <Label>Summary</Label>
+        <Card className="surface-1 min-h-40 min-w-60 px-6 py-3">
+            <CardTitle className="spaced text-else">
+                <TrendingUp strokeWidth={1} size={20} />
+                <Label className="text-xs ">Summary</Label>
             </CardTitle>
-            <CardContent className="evenly divide-x-2 divide-border">
+            <CardContent className="evenly xs:max-md:divide-x-2 divide-border">
                 
                 {stats.map((stat) => (
                     <dl key={stat.label} className="last:pr-0 pr-10 flex flex-col items-center gap-1">

@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import Navlink from "./Navlink";
 
 const NAV_ITEMS = [
+  { label: "JWT", href: "/" },
   { label: "Today", href: "/dashboard" },
   { label: "Monthly", href: "/dashboard/monthly" },
   { label: "Overview", href: "/dashboard/overview" },
@@ -14,7 +15,7 @@ export default function Navbar() {
   const pathname = usePathname();
 
   return (
-    <nav className="flex gap-3 text-xs mr-14 items-center">
+    <nav className="flex gap-3 text-xs mr-14 items-center ml-[50%] -translate-x-1/2 ">
       {NAV_ITEMS.map((item) => (
         <Navlink
           key={item.href}

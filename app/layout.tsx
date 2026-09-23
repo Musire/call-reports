@@ -1,4 +1,3 @@
-import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
@@ -16,28 +15,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html data-scroll-behavior="smooth" lang="en" suppressHydrationWarning className={cn(" w-dvw h-dvh overflow-y-auto overflow-x-hidden scrollbar-none", inter.variable)}>
-      <head>
-        {/* Use a standard script tag instead of next/script for immediate execution */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                try {
-                  const theme = localStorage.getItem('theme');
-                  const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
-                  if (theme === 'dark' || (!theme && supportDarkMode)) {
-                    document.documentElement.classList.add('dark');
-                  } else {
-                    document.documentElement.classList.remove('dark');
-                  }
-                } catch (e) {}
-              })();
-            `,
-          }}
-        />
-      </head>
-      <body className="font-poppins text-main bg-background">
+    <html lang="en" className="dark" data-scroll-behavior="smooth">
+      <body className="font-poppins text-main bg-background w-dvw h-dvh flex overflow-hidden">
         {children}
       </body>
     </html>

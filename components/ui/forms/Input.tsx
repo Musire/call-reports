@@ -33,8 +33,8 @@ export default function FormField<T extends FieldValues>({
   // Final type logic for password toggling
   const inputType = isPassword ? (showPassword ? "text" : "password") : type;
 
-  const baseClasses = `w-full bg-transparent border rounded-lg focus:ring-2 focus:outline-none transition-all
-    ${error ? "border-red-500 focus:ring-red-500/20" : "border-white/40 focus:ring-white/20"}
+  const baseClasses = `w-full bg-transparent border rounded-lg focus:ring-1 focus:outline-none transition-all
+    ${error ? "border-error focus:ring-error" : "border-white/40 focus:ring-white/20"}
     ${as === "textarea" ? "min-h-[128px] py-2 px-3" : "h-10 px-3"} 
     ${isPassword ? "pr-10" : ""} ${className}`;
 
@@ -75,7 +75,7 @@ export default function FormField<T extends FieldValues>({
 
       <div id={`${name}-error`} role="alert" className="min-h-5">
         {error && (
-          <span className="text-xs text-red-400 animate-in fade-in slide-in-from-top-1">
+          <span className="text-xs text-error animate-in fade-in slide-in-from-top-1">
             {String(error.message)}
           </span>
         )}
