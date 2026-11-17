@@ -1,36 +1,32 @@
+
 "use client";
-import { useCallback, useEffect, useState } from "react";
+
+import { useCallback, useState } from "react";
 
 export default function useThemeState() {
-  const [isDark, setIsDark] = useState(false);
+    const [isDark, setIsDark] = useState<boolean>(() => {
+        if (typeof window === "undefined") return false;
 
-  // 1. Load theme on mount
-  useEffect(() => {
-    const stored = localStorage.getItem("theme");
+        return localStorage.getItem("theme") === "dark";
+    });
 
-    if (stored === "dark") {
-      document.documentElement.classList.add("dark");
-      setIsDark(true);
-    } else {
-      document.documentElement.classList.remove("dark");
-      setIsDark(false);
-    }
-  }, []);
+    // Toggle theme
+    const toggleTheme = useCallback(() => {
+        const next = !isDark;
+        const root = document.documentElement;
 
-  // 2. Toggle theme
-  const toggleTheme = useCallback(() => {
-    const root = document.documentElement;
-    const next = !isDark;
+        if (next) {
+            root.classList.add("dark");
+        } else {
+            root.classList.remove("dark");
+        }
 
-    if (next) {
-      root.classList.add("dark");
-    } else {
-      root.classList.remove("dark");
-    }
+        localStorage.setItem("theme", next ? "dark" : "light");
+        setIsDark(next);
+    }, [isDark]);
 
-    localStorage.setItem("theme", next ? "dark" : "light");
-    setIsDark(next);
-  }, [isDark]);
-
-  return { isDark, toggleTheme };
+    return {
+        isDark,
+        toggleTheme
+    };
 }

@@ -1,59 +1,63 @@
+
 import { useReport } from "@/context/ReportContext";
+import { DayItem, Totals } from "@/domains/dashboard/report.types";
 import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
 import { useMemo } from "react";
 
-export type TodayDataItem = {
-  rawDate: dayjs.Dayjs;
-  rawMinutes: number;
-  start: string;
-  end: string;
-  min: string;
-  usd: string;
-};
-
-type TodayTotals = {
-  count: number;
-  minutes: number;
-  usd: number;
-};
+dayjs.extend(customParseFormat);
 
 export default function useTodayReport(): {
-  todayData: TodayDataItem[];
-  todayTotals: TodayTotals;
+    todayData: DayItem[];
+    todayTotals: Totals;
 } {
-  const { cleaned, minRate } = useReport();
+    const { data, minRate } = useReport();
 
-  const { todayData, todayTotals } = useMemo(() => {
-    // Instantiate date context strictly inside useMemo to preserve cache dependency matching
-    const today = dayjs().startOf("day");
+    const { todayData, todayTotals } = useMemo(() => {
 
-    // 1. Filter today's data
-    const filtered = cleaned.filter((call) =>
-      call.rawDate.isSame(today, "day")
-    );
+        // 1. Get today's date
+        const today = dayjs().startOf("day");
 
-    // 2. Calculate totals safely
-    const totals = filtered.reduce(
-      (acc, curr) => {
+        // 2. Filter today's records
+        const filtered = data.filter((call) => {
+            const callDate = dayjs(call.date, "MM/DD/YYYY", true);
+
+            return callDate.isValid() && callDate.isSame(today, "day");
+        });
+
+        // 3. Calculate totals
+        const totals = filtered.reduce(
+            (acc, curr) => ({
+                count: acc.count + 1,
+                minutes: acc.minutes + curr.mins,
+            }),
+            { count: 0, minutes: 0 }
+        );
+
+        // 4. Transform records for today's view
+        const todayData: DayItem[] = filtered.map((call) => {
+            const usd = (curr: number) => curr * minRate;
+
+            return {
+                start: call.start,
+                end: call.end,
+                mins: call.mins.toFixed(2),
+                usd: usd(call.mins),
+            };
+        });
+
+        // 5. Calculate total USD
+        const usd = totals.minutes * minRate;
+
         return {
-          count: acc.count + 1,
-          minutes: acc.minutes + curr.rawMinutes,
+            todayData,
+            todayTotals: {
+                ...totals,
+                usd,
+            },
         };
-      },
-      { count: 0, minutes: 0 }
-    );
 
-    // 3. Compute USD (single source of truth)
-    const usd = totals.minutes * minRate;
+    }, [data, minRate]);
 
-    return {
-      todayData: filtered as TodayDataItem[],
-      todayTotals: {
-        ...totals,
-        usd,
-      },
-    };
-  }, [cleaned, minRate]); // Removed 'today' from dependencies since it's computed internally
-
-  return { todayData, todayTotals };
+    return { todayData, todayTotals };
 }

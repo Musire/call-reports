@@ -1,49 +1,58 @@
+
 "use client";
+
 import { useCallback, useEffect, useState } from "react";
 
 export default function useJwt() {
-  // Initialize state (handling SSR safety)
-  const [jwt, setJwt] = useState<string | null>(null);
+    // Initialize directly from localStorage (SSR safe)
+    const [jwt, setJwt] = useState<string | null>(() => {
+        if (typeof window === "undefined") return null;
 
-  // Function to refresh state from localStorage
-  const checkJwt = useCallback(() => {
-    const token = localStorage.getItem("jwt");
-    setJwt(token);
-  }, []);
+        return localStorage.getItem("jwt");
+    });
 
-  useEffect(() => {
-    // 1. Initial check on mount
-    checkJwt();
+    // Refresh state from localStorage
+    const checkJwt = useCallback(() => {
+        const token = localStorage.getItem("jwt");
+        setJwt(token);
+    }, []);
 
-    // 2. Listen for changes from OTHER tabs/windows
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === "jwt") setJwt(e.newValue);
+    useEffect(() => {
+        // Listen for changes from OTHER tabs/windows
+        const handleStorageChange = (e: StorageEvent) => {
+            if (e.key === "jwt") {
+                setJwt(e.newValue);
+            }
+        };
+
+        // Listen for changes in the SAME tab
+        const handleLocalUpdate = () => checkJwt();
+
+        window.addEventListener("storage", handleStorageChange);
+        window.addEventListener("jwt-changed", handleLocalUpdate);
+
+        return () => {
+            window.removeEventListener("storage", handleStorageChange);
+            window.removeEventListener("jwt-changed", handleLocalUpdate);
+        };
+    }, [checkJwt]);
+
+    // Update JWT
+    const setToken = useCallback((token: string | null) => {
+        if (token) {
+            localStorage.setItem("jwt", token);
+        } else {
+            localStorage.removeItem("jwt");
+        }
+
+        setJwt(token);
+
+        window.dispatchEvent(new Event("jwt-changed"));
+    }, []);
+
+    return {
+        jwt,
+        isAuthenticated: !!jwt,
+        setToken
     };
-
-    // 3. Listen for changes in the SAME tab
-    // We dispatch a custom event when we manually update localStorage
-    const handleLocalUpdate = () => checkJwt();
-
-    window.addEventListener("storage", handleStorageChange);
-    window.addEventListener("jwt-changed", handleLocalUpdate);
-
-    return () => {
-      window.removeEventListener("storage", handleStorageChange);
-      window.removeEventListener("jwt-changed", handleLocalUpdate);
-    };
-  }, [checkJwt]);
-
-  return { 
-    jwt, 
-    isAuthenticated: !!jwt,
-    // Use this helper to update JWT so the hook sees it immediately
-    setToken: (token: string | null) => {
-      if (token) {
-        localStorage.setItem("jwt", token);
-      } else {
-        localStorage.removeItem("jwt");
-      }
-      window.dispatchEvent(new Event("jwt-changed"));
-    }
-  };
 }

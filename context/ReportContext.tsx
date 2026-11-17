@@ -1,170 +1,266 @@
-'use client';
 
+"use client";
+
+// 1. Imports
+import {
+    createContext,
+    useCallback,
+    useContext,
+    useEffect,
+    useMemo,
+    useState,
+    type ReactNode,
+} from "react";
+
+// 2. Types
+import { ReportData } from "@/domains/dashboard/report.types";
+import { normalizePrimaryData } from "@/domains/dashboard/report.utils";
 import { useJwt } from "@/hooks";
-import { CallData, transformRawData } from '@/lib/dataUtils';
-import dayjs from 'dayjs';
-import * as Papa from "papaparse";
-import React, {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState
-} from 'react';
 
-export type TimeRange = 'today' | 'mtd' | 'last7days';
+type ReportContextType = {
+    data: ReportData[];
+    loading: boolean;
+    refreshData: () => Promise<void>;
+    clearData: () => void;
+    minRate: number;
+    usdMxnRate: number;
+};
 
-interface ReportContextType {
-  data: any[];
-  loading: boolean;
-  refreshData: (range?: TimeRange) => Promise<void>;
-  clearData: () => void;
-  cleaned: CallData[];
-  minRate: number;
-  usdMxnRate: number;
-}
+// 3. Constants
+const PRIMARY_KEY = "primary";
+const SECONDARY_KEY = "secondary";
 
-const ReportContext = createContext<ReportContextType | undefined>(undefined);
+// 4. Context
+const ReportContext = createContext<ReportContextType | undefined>(
+    undefined
+);
 
-const CACHE_KEY = 'report_cache_data';
-const CACHE_TIME_KEY = 'report_cache_time';
-const MIN_RATE_KEY = 'min_usd_rate';
-const USD_MXN_KEY = 'usd_mxn_rate';
+// 5. Provider
+type ReportProviderProps = {
+    children: ReactNode;
+};
 
-// cache expires after 5 minutes (adjust if needed)
-const CACHE_DURATION = 5 * 60 * 1000;
+export function ReportProvider({ children }: ReportProviderProps) {
+    const { jwt } = useJwt();
 
-export function ReportProvider({ children }: { children: React.ReactNode }) {
-  const { jwt } = useJwt();
+    // STATE
+    const [primary, setPrimary] = useState<ReportData[]>([]);
+    const [secondary, setSecondary] = useState<ReportData[]>([]);
+    const [loading, setLoading] = useState(true);
 
-  const [data, setData] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
+    // FUNCTION: Fetch primary data
+    const fetchPrimary = useCallback(async (): Promise<ReportData[] | null> => {
+        try {
+            const now = new Date();
 
-  const [minRate, setMinRate] = useState(0.75);
-  const [usdMxnRate, setUsdMxnRate] = useState(17.8);
+            const startOfMonth = new Date(
+                now.getFullYear(),
+                now.getMonth(),
+                1,
+                0, 0, 0
+            );
 
-  // 🔹 Load rates from localStorage
-  useEffect(() => {
-    const storedMin = localStorage.getItem(MIN_RATE_KEY);
-    const storedMxn = localStorage.getItem(USD_MXN_KEY);
+            const start = Math.floor(startOfMonth.getTime() / 1000);
+            const end = Math.floor(now.getTime() / 1000);
 
-    if (storedMin) setMinRate(parseFloat(storedMin));
-    if (storedMxn) setUsdMxnRate(parseFloat(storedMxn));
-  }, []);
+            const response = await fetch(
+                `/api/report?startTime=${start}&endTime=${end}`,
+                {
+                    headers: {
+                        Authorization: `JWT ${jwt}`,
+                    },
+                }
+            );
 
-  const updateData = (newData: any[]) => {
-    setData(newData);
-    localStorage.setItem(CACHE_KEY, JSON.stringify(newData));
-    localStorage.setItem(CACHE_TIME_KEY, Date.now().toString());
-  };
+            if (!response.ok) {
+                console.warn(
+                    "Report request failed:",
+                    response.status
+                );
+                return null;
+            }
 
-  const fetchToState = useCallback(async (range: TimeRange = 'mtd') => {
-    if (!jwt) return;
+            // 1. Read CSV
+            const csv = await response.text();
 
-    let start: number;
-    let end: number = dayjs().unix();
+            // 2. Normalize CSV
+            const data = normalizePrimaryData(csv);
 
-    switch (range) {
-      case 'today':
-        start = dayjs().startOf('day').unix();
-        end = dayjs().endOf('day').unix();
-        break;
-      case 'last7days':
-        start = dayjs().subtract(7, 'day').startOf('day').unix();
-        break;
-      case 'mtd':
-      default:
-        start = dayjs().startOf('month').unix();
-        break;
-    }
+            // 3. Return normalized data
+            return data;
 
-    setLoading(true);
+        } catch (error) {
+            console.error("Failed to fetch primary report data:", error);
+            return null;
+        }
+    }, [jwt]);
 
-    try {
-      const response = await fetch(`/api/report?startTime=${start}&endTime=${end}`, {
-        headers: { Authorization: `JWT ${jwt}` },
-      });
+    // FUNCTION: Get cached primary data
+    const getCachedPrimary = useCallback((): ReportData[] => {
+        try {
+            const cached = localStorage.getItem(PRIMARY_KEY);
 
-      if (!response.ok) return;
+            if (!cached) return [];
 
-      const csvText = await response.text();
+            const parsed = JSON.parse(cached);
 
-      const result = Papa.parse(csvText, {
-        header: true,
-        skipEmptyLines: true,
-        dynamicTyping: true,
-      });
+            if (!Array.isArray(parsed)) {
+                throw new Error("Invalid primary cache format");
+            }
 
-      updateData(result.data);
-    } catch (error) {
-      console.error("Parsing error:", error);
-    } finally {
-      setLoading(false);
-    }
-  }, [jwt]);
+            return parsed;
 
-  // 🔥 Cache + stale-while-revalidate
-  useEffect(() => {
-    const cached = localStorage.getItem(CACHE_KEY);
-    const cachedTime = localStorage.getItem(CACHE_TIME_KEY);
+        } catch (error) {
+            console.error("Failed to read primary cache:", error);
 
-    const isExpired =
-      !cachedTime || (Date.now() - Number(cachedTime)) > CACHE_DURATION;
+            // Remove corrupted cache
+            localStorage.removeItem(PRIMARY_KEY);
 
-    // 1. Show cached instantly
-    if (cached) {
-      try {
-        setData(JSON.parse(cached));
-      } catch {
-        localStorage.removeItem(CACHE_KEY);
-      }
-    }
+            return [];
+        }
+    }, []);
 
-    // 2. Always refetch if expired OR no cache (background update)
-    if (jwt && (!cached || isExpired)) {
-      fetchToState('mtd');
-    }
+    // FUNCTION: Get secondary data
+    const getSecondary = useCallback((): ReportData[] => {
+        try {
+            const cached = localStorage.getItem(SECONDARY_KEY);
 
-    // 3. Optional: even if NOT expired, still refresh in background
-    if (jwt && cached && !isExpired) {
-      fetchToState('mtd');
-    }
+            if (!cached) return [];
 
-  }, [jwt, fetchToState]);
+            const parsed = JSON.parse(cached);
 
-  const clearData = () => {
-    setData([]);
-    localStorage.removeItem(CACHE_KEY);
-    localStorage.removeItem(CACHE_TIME_KEY);
-  };
+            if (!Array.isArray(parsed)) {
+                throw new Error("Invalid secondary cache format");
+            }
 
-  // ✅ Memoized transform (important)
-  const cleaned = useMemo(() => {
-    return transformRawData(data);
-  }, [data]);
+            return parsed;
 
-  return (
-    <ReportContext.Provider
-      value={{
+        } catch (error) {
+            console.error("Failed to read secondary cache:", error);
+
+            // Remove corrupted cache
+            localStorage.removeItem(SECONDARY_KEY);
+
+            return [];
+        }
+    }, []);
+
+    // FUNCTION: Combine datasets
+    const combineData = useCallback((
+        primaryData: ReportData[],
+        secondaryData: ReportData[]
+    ): ReportData[] => {
+
+        const parseTimeToMinutes = (timeStr?: string): number => {
+            if (!timeStr) return 0;
+            const match = timeStr.trim().match(/^(\d{1,2}):(\d{2})\s*(AM|PM|A|P)?$/i);
+            if (!match) return 0;
+
+            let hours = parseInt(match[1], 10);
+            const minutes = parseInt(match[2], 10);
+            const period = match[3]?.toUpperCase();
+
+            if (period?.startsWith('P') && hours < 12) hours += 12;
+            if (period?.startsWith('A') && hours === 12) hours = 0;
+
+            return hours * 60 + minutes;
+        };
+
+        const parseDateMs = (dateStr: string): number => {
+            const [month, day, year] = dateStr.split('/').map(Number);
+            return new Date(year, month - 1, day).getTime();
+        };
+
+        return [...primaryData, ...secondaryData].sort((a, b) => {
+            const dateDiff = parseDateMs(a.date) - parseDateMs(b.date);
+            if (dateDiff !== 0) return dateDiff;
+
+            return parseTimeToMinutes(a.start) - parseTimeToMinutes(b.start);
+        });
+
+    }, []);
+
+    // FUNCTION: Refresh data
+    const refreshData = useCallback(async (): Promise<void> => {
+        setLoading(true);
+
+        try {
+            // 1. Try fetching fresh primary data
+            const freshPrimary = await fetchPrimary();
+
+            // 2. Use fresh data or fallback to cache
+            const primaryData = freshPrimary ?? getCachedPrimary();
+
+            // 3. Read secondary data
+            const secondaryData = getSecondary();
+
+            // 4. Update state
+            setPrimary(primaryData);
+            setSecondary(secondaryData);
+
+        } catch (error) {
+            console.error("Failed to refresh report data:", error);
+
+            // Fallback to cached data
+            setPrimary(getCachedPrimary());
+            setSecondary(getSecondary());
+
+        } finally {
+            setLoading(false);
+        }
+
+    }, [fetchPrimary, getCachedPrimary, getSecondary]);
+
+    // FUNCTION: Clear data
+    const clearData = useCallback((): void => {
+
+        // Clear primary cache
+        localStorage.removeItem(PRIMARY_KEY);
+
+        // Clear primary state
+        setPrimary([]);
+
+        // Preserve secondary data
+
+    }, []);
+
+    // DERIVED DATA
+    const data = useMemo(() => {
+        const combined = combineData(primary, secondary)
+        return combined;
+    }, [primary, secondary, combineData]);
+
+    // INITIAL LOAD
+    useEffect(() => {
+        void refreshData();
+    }, [refreshData]);
+
+    // PROVIDER VALUE
+    const value = useMemo(() => ({
         data,
         loading,
-        refreshData: fetchToState,
+        refreshData,
         clearData,
-        cleaned,
-        minRate,
-        usdMxnRate,
-      }}
-    >
-      {children}
-    </ReportContext.Provider>
-  );
+        minRate: 0.75,
+        usdMxnRate: 18.5
+    }), [data, loading, refreshData, clearData]);
+
+    return (
+        <ReportContext.Provider value={value}>
+            {children}
+        </ReportContext.Provider>
+    );
 }
 
-export const useReport = () => {
-  const context = useContext(ReportContext);
-  if (!context) {
-    throw new Error("useReport must be used within a ReportProvider");
-  }
-  return context;
-};
+// 6. Consumer hook
+export function useReport(): ReportContextType {
+    const context = useContext(ReportContext);
+
+    if (!context) {
+        throw new Error(
+            "useReport must be used within a ReportProvider"
+        );
+    }
+
+    return context;
+}

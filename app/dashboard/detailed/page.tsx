@@ -11,11 +11,11 @@ import {
 import { useReport } from "@/context/ReportContext";
 import { RefreshButton } from "@/domains/dashboard/components";
 import { processReportData } from "@/lib/dataUtils";
-import { getRowColors } from "@/lib/mathUtils"; // adjust path if needed
+import { getRowColors } from "@/lib/mathUtils";
 
 export default function ReportTable() {
-  const { cleaned, minRate } = useReport();
-  const processedData = processReportData(cleaned, minRate);
+  const { data, minRate } = useReport();
+  const processedData = processReportData(data, minRate);
 
   const timeHeaders = Array.from({ length: 15 }, (_, i) => i + 6);
 
@@ -49,7 +49,7 @@ export default function ReportTable() {
           </TableHeader>
 
           <TableBody>
-            {processedData.map((row, rowIndex) => {
+            {processedData.map((row) => {
 
               const rowValues = timeHeaders.map((hour) =>
                 getValue(row.hourlyUsd, hour)

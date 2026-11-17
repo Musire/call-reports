@@ -8,16 +8,12 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
+import { DayItem } from "../report.types";
 
-type Call = {
-    start: string;
-    end: string;
-    min: string;
-    usd: string;
-}
+
 
 type Props = {
-  data: Call[]
+  data: DayItem[]
 }
 
 export default function SummaryTable ({ data }: Props) {
@@ -38,9 +34,9 @@ export default function SummaryTable ({ data }: Props) {
                         <TableRow key={index}>
                         <TableCell>{call.start}</TableCell>
                         <TableCell>{call.end}</TableCell>
-                        <TableCell>{call.min}</TableCell>
+                        <TableCell>{call.mins}</TableCell>
                         <TableCell className="text-right font-mono">
-                            {call.usd}
+                            {call.usd.toFixed(2)}
                         </TableCell>
                         </TableRow>
                     ))

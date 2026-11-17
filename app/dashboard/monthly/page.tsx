@@ -9,8 +9,8 @@ import { useReportData } from "@/hooks";
 import { formatCurrency } from "@/lib/formatUtils";
 
 export default function MonthlyPage() {
-  const { cleaned, usdMxnRate } = useReport();
-  const { groupedData, totals } = useReportData(cleaned, usdMxnRate);
+  const { usdMxnRate } = useReport();
+  const { groupedData, totals } = useReportData();
 
   return (
     <PageSection>

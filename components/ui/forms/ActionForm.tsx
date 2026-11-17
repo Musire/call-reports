@@ -1,57 +1,68 @@
+
 'use client';
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { startTransition, useActionState, useEffect } from "react";
-import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
-import { z } from "zod";
+import {
+    DefaultValues,
+    FormProvider,
+    SubmitHandler,
+    useForm
+} from "react-hook-form";
+import z from "zod";
 import StatusButton from "./StatusButton";
 
+export type FormState = {
+    success: boolean;
+    error: string | null;
+};
 
-export type FormState = { success: boolean, error: string | null }
-
-
-interface FormProps<S extends z.ZodObject<any>> {
+interface FormProps<S extends z.ZodObject<z.ZodRawShape>> {
     schema: S;
-    initialValues: z.infer<S>;
+    initialValues: DefaultValues<z.input<S>>;
     children: React.ReactNode;
-    actionFn: (prevState: FormState, formData: FormData) => FormState | Promise<FormState>;
+    actionFn: (
+        prevState: FormState,
+        formData: FormData
+    ) => FormState | Promise<FormState>;
     onSuccess?: () => void;
 }
 
-
-export default function ActionForm<S extends z.ZodObject<any>> ({ 
-    initialValues, 
+export default function ActionForm<S extends z.ZodObject<z.ZodRawShape>>({
+    initialValues,
     schema,
     actionFn,
     onSuccess,
-    children 
+    children
 }: FormProps<S>) {
-    // 1. server state
-    const [state, action, pending] = useActionState(actionFn, { 
-        success: false, 
-        error: null
-    })
 
-    // 2. RHF setup
-    const form = useForm<z.infer<S>>({
-      resolver: zodResolver(schema as any),
-      defaultValues: initialValues as any,
-      mode: "onBlur"
+    // 1. Server state
+    const [state, action, pending] = useActionState(actionFn, {
+        success: false,
+        error: null
     });
 
+    // 2. RHF setup
+    const form = useForm<z.input<S>, unknown, z.output<S>>({
+        resolver: zodResolver(schema),
+        defaultValues: initialValues,
+        mode: "onBlur"
+    });
 
-    // 3. bridge RHF → server action
-    const onSubmit: SubmitHandler<z.infer<S>> = async (values) => {
+    // 3. Bridge RHF → server action
+    const onSubmit: SubmitHandler<z.output<S>> = async (values) => {
         const formData = new FormData();
 
-        const data = values as Record<string, any>;
-
-        for (const key in data) {
-            formData.append(key, String(data[key]));
+        for (const [key, value] of Object.entries(values)) {
+            if (value instanceof File) {
+                formData.append(key, value);
+            } else if (value !== undefined && value !== null) {
+                formData.append(key, String(value));
+            }
         }
 
         startTransition(() => {
-            (action as (data: FormData) => void)(formData);
+            action(formData);
         });
     };
 
@@ -62,18 +73,20 @@ export default function ActionForm<S extends z.ZodObject<any>> ({
     }, [state.success, onSuccess]);
 
     return (
-      <FormProvider {...form}>
-        <form
-          className="flex flex-col min-w-72 max-w-lg w-full xs:w-dvw p-6 bg-darker  space-y-4 "
-          onSubmit={form.handleSubmit(onSubmit)}
-        >
-          {children}
-          <p className="">{state.error}</p>
-          <StatusButton 
-            isPending={pending}
-            state={state}
-          />
-        </form>
-      </FormProvider>
+        <FormProvider {...form}>
+            <form
+                className="flex flex-col min-w-72 max-w-lg w-full xs:w-dvw p-6 bg-darker space-y-4"
+                onSubmit={form.handleSubmit(onSubmit)}
+            >
+                {children}
+
+                <p>{state.error}</p>
+
+                <StatusButton
+                    isPending={pending}
+                    state={state}
+                />
+            </form>
+        </FormProvider>
     );
 }

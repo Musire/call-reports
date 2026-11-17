@@ -8,19 +8,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useReport } from "@/context/ReportContext";
-import { transformToWeeklyData } from "@/lib/dataUtils";
+import useMonthly from "@/hooks/useMonthly";
 
 export default function WeeklyTable() {
 
-  const { cleaned, minRate } = useReport();
-  const data = transformToWeeklyData(cleaned, minRate || 0);;
-
-  const totalAmount = data.reduce((sum, row) => sum + row.amount, 0);
-
-  const totalAvg = data.length > 0 
-    ? parseFloat((data.reduce((sum, row) => sum + row.avg, 0) / data.length).toFixed(4))
-    : 0;
+  const { monthlyData, totalAmount, totalAvg } = useMonthly()
 
   return (
     <div className="w-full surface-1 max-w-3xl py-2 px-6 rounded-xl border-border">
@@ -36,7 +28,7 @@ export default function WeeklyTable() {
         </TableHeader>
 
         <TableBody>
-          {data.map((row, i) => (
+          {monthlyData.map((row, i) => (
             <TableRow key={i} className="border-border">
               <TableCell>{row.week}</TableCell>
               <TableCell>{row.start}</TableCell>
