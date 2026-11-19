@@ -5,6 +5,7 @@ import Navlink from "./Navlink";
 
 const NAV_ITEMS = [
   { label: "JWT", href: "/" },
+  { label: "New", href: "/dashboard/new" },
   { label: "Today", href: "/dashboard" },
   { label: "Monthly", href: "/dashboard/monthly" },
   { label: "Overview", href: "/dashboard/overview" },

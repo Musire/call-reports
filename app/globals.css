@@ -453,3 +453,49 @@
   font-weight: var(--font-semibold);
   line-height: var(--leading-tight);
 }
+
+@utility bg-darken-* {
+  --mix-percentage: calc(--value(integer) * 10%);
+
+  background-color: color-mix(
+    in srgb,
+    black var(--mix-percentage),
+    --modifier(--color-*)
+  );
+}
+
+@utility bg-lighten-* {
+  --mix-percentage: calc(--value(integer) * 10%);
+
+  background-color: color-mix(
+    in srgb,
+    white var(--mix-percentage),
+    --modifier(--color-*)
+  );
+}
+
+@utility text-auto {
+  --bg-lightness: oklch(from var(--tw-bg-color, white) l 0 0);
+
+  --threshold: 0.62;
+
+  color: hwb(
+    from var(--bg-lightness) h calc((w - var(--threshold)) * -99999%)
+      calc((w - var(--threshold)) * 99999%)
+  );
+}
+
+@utility mix-* {
+  --mix-target: --value(--color-*);
+}
+
+@utility bg-mix-* {
+  --mix-base: --value(--color-*);
+  --mix-ratio: calc(--modifier(integer) * 10%);
+
+  background-color: color-mix(
+    in srgb,
+    var(--mix-target, transparent) var(--mix-ratio, 50%),
+    var(--mix-base)
+  );
+}
